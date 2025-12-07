@@ -5,6 +5,27 @@ All notable changes to Power Profile Manager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-12-07
+
+### Fixed
+- Fixed critical bug where daemon continued enforcing powersave mode when AC was connected
+- Fixed daemon not triggering TLP mode transitions when switching between AC and battery
+- Daemon now properly detects AC/battery state changes and triggers appropriate TLP modes
+
+### Changed
+- Daemon now actively triggers `tlp ac` when AC is connected (ensures Performance mode)
+- Daemon now actively triggers `tlp bat` when on battery above threshold (ensures Balanced mode)
+- Added state transition tracking to detect AC plug/unplug events
+- Improved mode switching logic for seamless transitions between all three power modes
+
+### Technical Details
+- All three power modes now work correctly:
+  - Performance (balance_performance) when AC connected - managed by TLP
+  - Balanced (balance_power) when battery >threshold - managed by TLP
+  - Ultra Power Save (power) when battery ≤threshold - enforced by daemon
+- Daemon backs off completely when not in Ultra Power Save mode
+- TLP transitions are triggered immediately upon state changes
+
 ## [1.0.1] - 2025-12-07
 
 ### Fixed

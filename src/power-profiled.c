@@ -225,24 +225,41 @@ int main(int argc, char *argv[]) {
     syslog(LOG_INFO, "Power Profile Manager daemon started");
     syslog(LOG_INFO, "Working in conjunction with TLP for power management");
     
+    int prev_on_ac = -1;  // Track previous AC state
+    
     while (running) {
         int level = get_battery_level();
         int on_ac = is_on_ac();
         
-        if (on_ac || level > threshold) {
+        syslog(LOG_DEBUG, "Check: Battery=%d%%, AC=%s, Threshold=%d%%", 
+               level, on_ac ? "yes" : "no", threshold);
+        
+        if (on_ac) {
+            // On AC power
             char *state = get_current_state();
-            if (state && strcmp(state, "powersave") == 0) {
-                apply_balanced();
+            if ((state && strcmp(state, "powersave") == 0) || prev_on_ac == 0) {
+                // Transitioning from battery/powersave to AC
+                system("tlp ac >/dev/null 2>&1");
+                syslog(LOG_INFO, "AC connected - triggered TLP AC mode (Battery=%d%%)", level);
+                clear_state();
             }
-            clear_state();
+        } else if (level <= threshold) {
+            // On battery and at/below threshold - enforce powersave
+            apply_powersave();
+            set_state("powersave");
+            syslog(LOG_DEBUG, "Enforcing powersave mode (Battery=%d%% <= %d%%)", level, threshold);
         } else {
+            // On battery but above threshold - let TLP handle battery mode
             char *state = get_current_state();
-            if (!state || strcmp(state, "powersave") != 0) {
-                apply_powersave();
-                set_state("powersave");
+            if ((state && strcmp(state, "powersave") == 0) || prev_on_ac == 1) {
+                // Transitioning from AC or powersave to battery balanced
+                system("tlp bat >/dev/null 2>&1");
+                syslog(LOG_INFO, "Battery above threshold - triggered TLP battery mode (Battery=%d%%)", level);
+                clear_state();
             }
         }
         
+        prev_on_ac = on_ac;
         sleep(interval);
     }
     
