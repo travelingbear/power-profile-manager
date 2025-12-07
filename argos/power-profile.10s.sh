@@ -116,9 +116,9 @@ echo "---"
 
 # Travel mode toggle
 if [ "$TRAVEL_MODE" = true ]; then
-    echo "Disable Travel Mode | bash='bash -c \"rm -f ~/.config/power-profile-manager/travel-mode && pkexec tlp setcharge 75 90 BAT0 && pkexec sed -i s/STOP_CHARGE_THRESH_BAT0=95/STOP_CHARGE_THRESH_BAT0=90/ /etc/tlp.d/01-thinkpad-optimized.conf\"' terminal=false"
+    echo "Disable Travel Mode | bash='bash -c \"rm -f ~/.config/power-profile-manager/travel-mode && pkexec bash -c \\\"tlp setcharge 75 90 BAT0 && sed -i s/STOP_CHARGE_THRESH_BAT0=95/STOP_CHARGE_THRESH_BAT0=90/ /etc/tlp.d/01-thinkpad-optimized.conf\\\"\"' terminal=false"
 else
-    echo "Enable Travel Mode | bash='bash -c \"mkdir -p ~/.config/power-profile-manager && touch ~/.config/power-profile-manager/travel-mode && pkexec tlp setcharge 75 95 BAT0 && pkexec sed -i s/STOP_CHARGE_THRESH_BAT0=90/STOP_CHARGE_THRESH_BAT0=95/ /etc/tlp.d/01-thinkpad-optimized.conf\"' terminal=false"
+    echo "Enable Travel Mode | bash='bash -c \"mkdir -p ~/.config/power-profile-manager && touch ~/.config/power-profile-manager/travel-mode && pkexec bash -c \\\"tlp setcharge 75 95 BAT0 && sed -i s/STOP_CHARGE_THRESH_BAT0=90/STOP_CHARGE_THRESH_BAT0=95/ /etc/tlp.d/01-thinkpad-optimized.conf\\\"\"' terminal=false"
 fi
 
 echo "---"
