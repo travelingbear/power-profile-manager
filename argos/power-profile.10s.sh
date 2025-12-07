@@ -4,6 +4,13 @@
 
 BATTERY_PATH="/sys/class/power_supply/BAT0"
 STATE_FILE="/var/run/power-profile-state"
+CONFIG_FILE="$HOME/.config/power-profile-manager/argos.conf"
+
+# Load config (show percentage by default)
+SHOW_PERCENTAGE=true
+if [ -f "$CONFIG_FILE" ]; then
+    source "$CONFIG_FILE"
+fi
 
 # Get battery info
 LEVEL=$(cat "$BATTERY_PATH/capacity" 2>/dev/null || echo "?")
@@ -23,7 +30,11 @@ else
 fi
 
 # Panel display
-echo "$ICON $LEVEL%"
+if [ "$SHOW_PERCENTAGE" = true ]; then
+    echo "$ICON $LEVEL%"
+else
+    echo "$ICON"
+fi
 echo "---"
 
 # Dropdown menu
@@ -72,6 +83,15 @@ echo "---"
 echo "Configure | bash='python3 /usr/local/share/power-profile-manager/power-profile-config.py' terminal=false"
 echo "Monitor | bash='gnome-terminal -- power-profile-ctl monitor' terminal=false"
 echo "Restart Daemon | bash='pkexec systemctl restart power-profiled' terminal=false"
+echo "---"
+
+# Toggle percentage display
+if [ "$SHOW_PERCENTAGE" = true ]; then
+    echo "Hide Percentage | bash='mkdir -p ~/.config/power-profile-manager && echo \"SHOW_PERCENTAGE=false\" > ~/.config/power-profile-manager/argos.conf' terminal=false"
+else
+    echo "Show Percentage | bash='mkdir -p ~/.config/power-profile-manager && echo \"SHOW_PERCENTAGE=true\" > ~/.config/power-profile-manager/argos.conf' terminal=false"
+fi
+
 echo "---"
 echo "View Logs | bash='gnome-terminal -- journalctl -u power-profiled -f' terminal=false"
 echo "About | bash='zenity --info --text=\"Power Profile Manager v1.0.1\n\nDynamic power management for laptops\n\nhttps://github.com/travelingbear/power-profile-manager\"' terminal=false"
