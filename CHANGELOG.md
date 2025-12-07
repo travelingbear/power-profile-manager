@@ -5,6 +5,33 @@ All notable changes to Power Profile Manager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2025-12-07
+
+### Fixed
+- Fixed AC detection when battery reaches charge threshold and stops charging
+- Daemon now uses hybrid AC detection: checks `/sys/class/power_supply/AC/online` first, falls back to battery status
+- Correctly handles "Not charging" battery status when at TLP charge threshold (e.g., 75-80%)
+- Performance mode now maintained when AC connected, regardless of battery charging state
+
+### Changed
+- Improved `is_on_ac()` function to prioritize AC adapter status over battery status
+- Added "Not charging" to recognized AC-connected battery states
+- More reliable AC detection for systems with battery charge thresholds configured
+
+### Added
+- Comprehensive test suite (TEST_RESULTS.md) validating all power modes and transitions
+- Argos panel indicator now uses AC adapter status for icon selection
+- Updated Argos script to show plug icon (🔌) when AC connected, battery icons when on battery
+
+### Technical Details
+- Hybrid AC detection prevents false battery mode when AC is connected but battery not charging
+- All three power modes validated through extensive testing:
+  * Performance (AC) - working correctly
+  * Balanced (battery >threshold) - working correctly  
+  * Ultra Power Save (battery ≤threshold) - working correctly
+- Daemon survives sleep/wake cycles and auto-starts on boot (16s delay)
+- Mode transitions occur within 5-second check interval
+
 ## [1.0.2] - 2025-12-07
 
 ### Fixed

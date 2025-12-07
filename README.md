@@ -2,7 +2,7 @@
 
 Dynamic power management system for Linux laptops with battery percentage-based profiles.
 
-**Version:** 1.0.2
+**Version:** 1.0.3
 
 ## Features
 

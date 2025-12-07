@@ -3,6 +3,7 @@
 # Refresh every 30 seconds
 
 BATTERY_PATH="/sys/class/power_supply/BAT0"
+AC_PATH="/sys/class/power_supply/AC"
 STATE_FILE="/var/run/power-profile-state"
 CONFIG_FILE="$HOME/.config/power-profile-manager/argos.conf"
 
@@ -15,11 +16,12 @@ fi
 # Get battery info
 LEVEL=$(cat "$BATTERY_PATH/capacity" 2>/dev/null || echo "?")
 STATUS=$(cat "$BATTERY_PATH/status" 2>/dev/null || echo "Unknown")
+AC_ONLINE=$(cat "$AC_PATH/online" 2>/dev/null || echo "0")
 STATE=$(cat "$STATE_FILE" 2>/dev/null || echo "inactive")
 
-# Determine icon and profile name
-if [[ "$STATUS" == "Charging" || "$STATUS" == "Full" ]]; then
-    ICON="⚡"
+# Determine icon and profile name based on AC status
+if [[ "$AC_ONLINE" == "1" ]]; then
+    ICON="🔌"
     PROFILE="Performance"
 elif [[ "$STATE" == "powersave" ]]; then
     ICON="🪫"
@@ -94,4 +96,4 @@ fi
 
 echo "---"
 echo "View Logs | bash='gnome-terminal -- journalctl -u power-profiled -f' terminal=false"
-echo "About | bash='zenity --info --text=\"Power Profile Manager v1.0.1\n\nDynamic power management for laptops\n\nhttps://github.com/travelingbear/power-profile-manager\"' terminal=false"
+echo "About | bash='zenity --info --text=\"Power Profile Manager v1.0.3\n\nDynamic power management for laptops\n\nhttps://github.com/travelingbear/power-profile-manager\"' terminal=false"

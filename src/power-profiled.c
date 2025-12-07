@@ -78,13 +78,25 @@ int get_battery_level() {
 }
 
 int is_on_ac() {
+    int ac_online;
+    
+    // Primary check: AC adapter status (most reliable)
+    ac_online = read_int_from_file("/sys/class/power_supply/AC/online");
+    if (ac_online >= 0) {
+        return ac_online;
+    }
+    
+    // Fallback: Check battery status
     char path[256], status[32];
     snprintf(path, sizeof(path), "%s/status", BATTERY_PATH);
     
     if (read_string_from_file(path, status, sizeof(status)) < 0)
-        return 1;
+        return 1;  // Assume AC if we can't read status
     
-    return (strcmp(status, "Charging") == 0 || strcmp(status, "Full") == 0);
+    // Consider "Charging", "Not charging", or "Full" as AC connected
+    return (strcmp(status, "Charging") == 0 || 
+            strcmp(status, "Not charging") == 0 || 
+            strcmp(status, "Full") == 0);
 }
 
 void set_cpu_epp(const char *policy) {
