@@ -5,6 +5,29 @@ All notable changes to Power Profile Manager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-12-07
+
+### Added
+- **Travel Mode**: New feature to temporarily increase battery charge threshold to 95%
+- Visual indicator: Backpack icon (🎒) in panel when Travel Mode is enabled
+- One-click toggle in Argos menu: "Enable/Disable Travel Mode"
+- Travel mode status display in menu: "Travel Mode: ON/OFF (charging to 95%/90%)"
+- Persistent travel mode state (survives reboots until manually disabled)
+- Comprehensive travel mode documentation (TRAVEL_MODE.md)
+
+### Changed
+- Panel icon now shows backpack (🎒) when in Travel Mode, overriding normal battery/plug icons
+- Battery charge thresholds updated: Normal mode 75-90%, Travel mode 75-95%
+- Argos menu now displays current travel mode status
+- Profile display shows "(Travel Mode)" suffix when active
+
+### Technical Details
+- Travel mode state stored in `~/.config/power-profile-manager/travel-mode`
+- Instant threshold changes via `tlp setcharge` command
+- No restart required - changes apply immediately
+- TLP config automatically updated when toggling modes
+- 15% hysteresis gap (normal) or 20% gap (travel) reduces charge cycles
+
 ## [1.0.3] - 2025-12-07
 
 ### Fixed

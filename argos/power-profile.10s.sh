@@ -1,16 +1,23 @@
 #!/bin/bash
 # Power Profile Manager - Argos Panel Indicator
-# Refresh every 30 seconds
+# Refresh every 10 seconds
 
 BATTERY_PATH="/sys/class/power_supply/BAT0"
 AC_PATH="/sys/class/power_supply/AC"
 STATE_FILE="/var/run/power-profile-state"
 CONFIG_FILE="$HOME/.config/power-profile-manager/argos.conf"
+TRAVEL_MODE_FILE="$HOME/.config/power-profile-manager/travel-mode"
 
 # Load config (show percentage by default)
 SHOW_PERCENTAGE=true
 if [ -f "$CONFIG_FILE" ]; then
     source "$CONFIG_FILE"
+fi
+
+# Check travel mode
+TRAVEL_MODE=false
+if [ -f "$TRAVEL_MODE_FILE" ]; then
+    TRAVEL_MODE=true
 fi
 
 # Get battery info
@@ -19,15 +26,27 @@ STATUS=$(cat "$BATTERY_PATH/status" 2>/dev/null || echo "Unknown")
 AC_ONLINE=$(cat "$AC_PATH/online" 2>/dev/null || echo "0")
 STATE=$(cat "$STATE_FILE" 2>/dev/null || echo "inactive")
 
-# Determine icon and profile name based on AC status
-if [[ "$AC_ONLINE" == "1" ]]; then
+# Determine icon and profile name
+if [ "$TRAVEL_MODE" = true ]; then
+    ICON="🎒"
+    PROFILE_SUFFIX=" (Travel Mode)"
+elif [[ "$AC_ONLINE" == "1" ]]; then
     ICON="🔌"
-    PROFILE="Performance"
+    PROFILE_SUFFIX=""
 elif [[ "$STATE" == "powersave" ]]; then
     ICON="🪫"
-    PROFILE="Power Save"
+    PROFILE_SUFFIX=""
 else
     ICON="🔋"
+    PROFILE_SUFFIX=""
+fi
+
+# Determine profile name
+if [[ "$AC_ONLINE" == "1" ]]; then
+    PROFILE="Performance"
+elif [[ "$STATE" == "powersave" ]]; then
+    PROFILE="Power Save"
+else
     PROFILE="Balanced"
 fi
 
@@ -59,7 +78,15 @@ fi
 
 echo "---"
 echo "Battery: $LEVEL% ($STATUS)"
-echo "Active Profile: $PROFILE"
+echo "Active Profile: $PROFILE$PROFILE_SUFFIX"
+
+# Show travel mode status
+if [ "$TRAVEL_MODE" = true ]; then
+    echo "Travel Mode: ON (charging to 95%)"
+else
+    echo "Travel Mode: OFF (charging to 90%)"
+fi
+
 echo "---"
 
 # CPU info
@@ -87,6 +114,15 @@ echo "Monitor | bash='gnome-terminal -- power-profile-ctl monitor' terminal=fals
 echo "Restart Daemon | bash='pkexec systemctl restart power-profiled' terminal=false"
 echo "---"
 
+# Travel mode toggle
+if [ "$TRAVEL_MODE" = true ]; then
+    echo "Disable Travel Mode | bash='bash -c \"rm -f ~/.config/power-profile-manager/travel-mode && pkexec tlp setcharge 75 90 BAT0 && pkexec sed -i s/STOP_CHARGE_THRESH_BAT0=95/STOP_CHARGE_THRESH_BAT0=90/ /etc/tlp.d/01-thinkpad-optimized.conf\"' terminal=false"
+else
+    echo "Enable Travel Mode | bash='bash -c \"mkdir -p ~/.config/power-profile-manager && touch ~/.config/power-profile-manager/travel-mode && pkexec tlp setcharge 75 95 BAT0 && pkexec sed -i s/STOP_CHARGE_THRESH_BAT0=90/STOP_CHARGE_THRESH_BAT0=95/ /etc/tlp.d/01-thinkpad-optimized.conf\"' terminal=false"
+fi
+
+echo "---"
+
 # Toggle percentage display
 if [ "$SHOW_PERCENTAGE" = true ]; then
     echo "Hide Percentage | bash='mkdir -p ~/.config/power-profile-manager && echo \"SHOW_PERCENTAGE=false\" > ~/.config/power-profile-manager/argos.conf' terminal=false"
@@ -96,4 +132,4 @@ fi
 
 echo "---"
 echo "View Logs | bash='gnome-terminal -- journalctl -u power-profiled -f' terminal=false"
-echo "About | bash='zenity --info --text=\"Power Profile Manager v1.0.3\n\nDynamic power management for laptops\n\nhttps://github.com/travelingbear/power-profile-manager\"' terminal=false"
+echo "About | bash='zenity --info --text=\"Power Profile Manager v1.1.0\n\nDynamic power management for laptops\n\nhttps://github.com/travelingbear/power-profile-manager\"' terminal=false"
