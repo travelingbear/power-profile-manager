@@ -74,4 +74,4 @@ echo "Monitor | bash='gnome-terminal -- power-profile-ctl monitor' terminal=fals
 echo "Restart Daemon | bash='pkexec systemctl restart power-profiled' terminal=false"
 echo "---"
 echo "View Logs | bash='gnome-terminal -- journalctl -u power-profiled -f' terminal=false"
-echo "About | bash='zenity --info --text=\"Power Profile Manager v1.0\n\nDynamic power management for laptops\n\nThreshold: 30%\nInterval: 60s\"' terminal=false"
+echo "About | bash='zenity --info --text=\"Power Profile Manager v1.0.1\n\nDynamic power management for laptops\n\nhttps://github.com/travelingbear/power-profile-manager\"' terminal=false"
