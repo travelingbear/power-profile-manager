@@ -6,6 +6,9 @@ src/power-profile-ctl
 # Legacy bash implementation (kept for reference)
 scripts/
 
+# Development notes (not for distribution)
+PROJECT_SUMMARY.md
+
 # Temporary files
 *.tmp
 *~
