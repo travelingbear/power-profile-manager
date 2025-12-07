@@ -2,17 +2,19 @@
 
 Dynamic power management system for Linux laptops with battery percentage-based profiles.
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 
 ## Features
 
 - Native C daemon for optimal performance (~176KB memory)
 - Three power profiles: Performance, Balanced, Ultra Power Saving
+- **Automatic Brightness Control**: Adjusts screen brightness based on power mode (optional)
 - **Travel Mode**: One-click toggle to charge battery to 95% for extended runtime
 - Automatic switching based on AC/battery and battery percentage
 - Configurable battery threshold and check interval
 - CLI monitoring and control tool (`power-profile-ctl`)
 - Argos GNOME panel indicator with visual travel mode indicator (🎒 backpack icon)
+- GTK configuration GUI with brightness controls
 - Efficient design: TLP handles AC/battery transitions, daemon only intervenes at critical battery levels
 - Systemd service integration
 - Comprehensive documentation (man pages)

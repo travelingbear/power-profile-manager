@@ -82,6 +82,80 @@ class PowerProfileConfig(Gtk.Window):
         # Separator
         vbox.pack_start(Gtk.Separator(), False, False, 0)
         
+        # Brightness section
+        brightness_label = Gtk.Label()
+        brightness_label.set_markup("<b>Automatic Brightness Control</b>")
+        brightness_label.set_halign(Gtk.Align.START)
+        vbox.pack_start(brightness_label, False, False, 0)
+        
+        # Auto brightness toggle
+        self.auto_brightness_check = Gtk.CheckButton(label="Enable automatic brightness adjustment")
+        self.auto_brightness_check.set_active(self.read_config_value('AUTO_BRIGHTNESS', 0) == 1)
+        self.auto_brightness_check.connect("toggled", self.on_auto_brightness_toggled)
+        vbox.pack_start(self.auto_brightness_check, False, False, 0)
+        
+        # Brightness settings container
+        self.brightness_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        self.brightness_box.set_margin_start(20)
+        
+        # Power Save brightness
+        powersave_box = Gtk.Box(spacing=10)
+        powersave_label = Gtk.Label(label="Power Save Mode (%):")
+        powersave_label.set_halign(Gtk.Align.START)
+        powersave_label.set_size_request(200, -1)
+        powersave_box.pack_start(powersave_label, False, False, 0)
+        
+        self.brightness_powersave_spin = Gtk.SpinButton()
+        self.brightness_powersave_spin.set_range(10, 100)
+        self.brightness_powersave_spin.set_increments(5, 10)
+        self.brightness_powersave_spin.set_value(self.read_config_value('BRIGHTNESS_POWERSAVE', 60))
+        powersave_box.pack_start(self.brightness_powersave_spin, False, False, 0)
+        
+        self.brightness_box.pack_start(powersave_box, False, False, 0)
+        
+        # Balanced brightness
+        balanced_box = Gtk.Box(spacing=10)
+        balanced_label = Gtk.Label(label="Balanced Mode (%):")
+        balanced_label.set_halign(Gtk.Align.START)
+        balanced_label.set_size_request(200, -1)
+        balanced_box.pack_start(balanced_label, False, False, 0)
+        
+        self.brightness_balanced_spin = Gtk.SpinButton()
+        self.brightness_balanced_spin.set_range(10, 100)
+        self.brightness_balanced_spin.set_increments(5, 10)
+        self.brightness_balanced_spin.set_value(self.read_config_value('BRIGHTNESS_BALANCED', 80))
+        balanced_box.pack_start(self.brightness_balanced_spin, False, False, 0)
+        
+        self.brightness_box.pack_start(balanced_box, False, False, 0)
+        
+        # Performance brightness
+        performance_box = Gtk.Box(spacing=10)
+        performance_label = Gtk.Label(label="Performance Mode (%):")
+        performance_label.set_halign(Gtk.Align.START)
+        performance_label.set_size_request(200, -1)
+        performance_box.pack_start(performance_label, False, False, 0)
+        
+        self.brightness_performance_spin = Gtk.SpinButton()
+        self.brightness_performance_spin.set_range(10, 100)
+        self.brightness_performance_spin.set_increments(5, 10)
+        self.brightness_performance_spin.set_value(self.read_config_value('BRIGHTNESS_PERFORMANCE', 100))
+        performance_box.pack_start(self.brightness_performance_spin, False, False, 0)
+        
+        self.brightness_box.pack_start(performance_box, False, False, 0)
+        
+        brightness_help = Gtk.Label()
+        brightness_help.set_markup("<small>Brightness is set once when entering each mode</small>")
+        brightness_help.set_halign(Gtk.Align.START)
+        self.brightness_box.pack_start(brightness_help, False, False, 0)
+        
+        vbox.pack_start(self.brightness_box, False, False, 0)
+        
+        # Set initial sensitivity
+        self.on_auto_brightness_toggled(self.auto_brightness_check)
+        
+        # Separator
+        vbox.pack_start(Gtk.Separator(), False, False, 0)
+        
         # Buttons
         button_box = Gtk.Box(spacing=10)
         button_box.set_halign(Gtk.Align.END)
@@ -127,14 +201,24 @@ class PowerProfileConfig(Gtk.Window):
             daemon_color = "green" if daemon_running else "red"
             
             self.status_label.set_markup(
-                f"<small><span color='{daemon_color}'>{daemon_text}</span>\n{battery.strip()}\n{status.strip()}\n{profile.strip()}</small>"
+                f"<small><span color='{daemon_color}'><b>{daemon_text}</b></span>\n"
+                f"{battery.strip()}\n{status.strip()}\n{profile.strip()}</small>"
             )
         except:
             self.status_label.set_text("Status unavailable")
     
+    def on_auto_brightness_toggled(self, checkbox):
+        """Enable/disable brightness controls based on checkbox"""
+        is_active = checkbox.get_active()
+        self.brightness_box.set_sensitive(is_active)
+    
     def on_save_clicked(self, button):
         threshold = int(self.threshold_spin.get_value())
         interval = int(self.interval_spin.get_value())
+        auto_brightness = 1 if self.auto_brightness_check.get_active() else 0
+        brightness_powersave = int(self.brightness_powersave_spin.get_value())
+        brightness_balanced = int(self.brightness_balanced_spin.get_value())
+        brightness_performance = int(self.brightness_performance_spin.get_value())
         
         # Create new config content
         config_content = f"""# Power Profile Manager Configuration
@@ -148,6 +232,27 @@ THRESHOLD={threshold}
 # How often the daemon checks battery status
 # Default: 60
 INTERVAL={interval}
+
+# Automatic brightness control
+# 0 = disabled, 1 = enabled
+# Default: 0 (disabled)
+AUTO_BRIGHTNESS={auto_brightness}
+
+# Brightness levels for each power mode (percentage)
+# Values: 10-100
+# Brightness is set once when entering each mode
+
+# Ultra Power Save mode (battery <= threshold)
+# Default: 60
+BRIGHTNESS_POWERSAVE={brightness_powersave}
+
+# Balanced mode (battery > threshold, on battery)
+# Default: 80
+BRIGHTNESS_BALANCED={brightness_balanced}
+
+# Performance mode (AC connected)
+# Default: 100
+BRIGHTNESS_PERFORMANCE={brightness_performance}
 """
         
         # Write config and restart daemon with single pkexec call

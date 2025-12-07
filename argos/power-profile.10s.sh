@@ -89,25 +89,6 @@ fi
 
 echo "---"
 
-# CPU info
-EPP=$(cat /sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference 2>/dev/null || echo "N/A")
-TURBO=$(cat /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null)
-if [ "$TURBO" == "0" ]; then
-    TURBO_STATUS="Enabled"
-elif [ "$TURBO" == "1" ]; then
-    TURBO_STATUS="Disabled"
-else
-    TURBO=$(cat /sys/devices/system/cpu/cpufreq/boost 2>/dev/null)
-    TURBO_STATUS=$([ "$TURBO" == "1" ] && echo "Enabled" || echo "Disabled")
-fi
-PLATFORM=$(cat /sys/firmware/acpi/platform_profile 2>/dev/null || echo "N/A")
-
-echo "CPU Settings:"
-echo "  EPP: $EPP | size=11"
-echo "  Turbo: $TURBO_STATUS | size=11"
-echo "  Platform: $PLATFORM | size=11"
-echo "---"
-
 # Actions
 echo "Configure | bash='python3 /usr/local/share/power-profile-manager/power-profile-config.py' terminal=false"
 echo "Monitor | bash='gnome-terminal -- power-profile-ctl monitor' terminal=false"
@@ -132,4 +113,4 @@ fi
 
 echo "---"
 echo "View Logs | bash='gnome-terminal -- journalctl -u power-profiled -f' terminal=false"
-echo "About | bash='zenity --info --text=\"Power Profile Manager v1.1.0\n\nDynamic power management for laptops\n\nhttps://github.com/travelingbear/power-profile-manager\"' terminal=false"
+echo "About | bash='zenity --info --text=\"Power Profile Manager v1.2.0\n\nDynamic power management for laptops\n\nhttps://github.com/travelingbear/power-profile-manager\"' terminal=false"

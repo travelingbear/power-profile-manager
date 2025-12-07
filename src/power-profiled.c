@@ -12,12 +12,24 @@
 #define BATTERY_PATH "/sys/class/power_supply/BAT0"
 #define STATE_FILE "/var/run/power-profile-state"
 #define CONFIG_FILE "/etc/power-profiled.conf"
+#define BRIGHTNESS_PATH "/sys/class/backlight/intel_backlight/brightness"
+#define MAX_BRIGHTNESS_PATH "/sys/class/backlight/intel_backlight/max_brightness"
 #define DEFAULT_THRESHOLD 30
 #define DEFAULT_INTERVAL 60
+#define DEFAULT_AUTO_BRIGHTNESS 0
+#define DEFAULT_BRIGHTNESS_POWERSAVE 60
+#define DEFAULT_BRIGHTNESS_BALANCED 80
+#define DEFAULT_BRIGHTNESS_PERFORMANCE 100
 
 static volatile int running = 1;
 static int threshold = DEFAULT_THRESHOLD;
 static int interval = DEFAULT_INTERVAL;
+static int auto_brightness = DEFAULT_AUTO_BRIGHTNESS;
+static int brightness_powersave = DEFAULT_BRIGHTNESS_POWERSAVE;
+static int brightness_balanced = DEFAULT_BRIGHTNESS_BALANCED;
+static int brightness_performance = DEFAULT_BRIGHTNESS_PERFORMANCE;
+static int max_brightness = 0;
+static int last_brightness_mode = -1;  // Track last mode to avoid re-setting
 
 void signal_handler(int sig) {
     running = 0;
@@ -162,6 +174,48 @@ void set_state(const char *state) {
     write_to_file(STATE_FILE, state);
 }
 
+void set_brightness(int percent, int mode) {
+    if (!auto_brightness || max_brightness == 0) return;
+    
+    // Only set brightness once per mode change
+    if (last_brightness_mode == mode) return;
+    
+    // Get current brightness
+    int current_brightness = read_int_from_file(BRIGHTNESS_PATH);
+    if (current_brightness < 0) return;
+    
+    int target_brightness = (max_brightness * percent) / 100;
+    
+    // Only reduce brightness, never increase it
+    // This respects user's manual dimming
+    if (target_brightness >= current_brightness) {
+        syslog(LOG_DEBUG, "Skipping brightness change: current %d >= target %d", 
+               current_brightness, target_brightness);
+        last_brightness_mode = mode;
+        return;
+    }
+    
+    char value_str[16];
+    snprintf(value_str, sizeof(value_str), "%d", target_brightness);
+    
+    if (write_to_file(BRIGHTNESS_PATH, value_str) == 0) {
+        syslog(LOG_INFO, "Reduced brightness to %d%% (mode %d)", percent, mode);
+        last_brightness_mode = mode;
+    } else {
+        syslog(LOG_WARNING, "Failed to set brightness");
+    }
+}
+
+void init_brightness() {
+    max_brightness = read_int_from_file(MAX_BRIGHTNESS_PATH);
+    if (max_brightness <= 0) {
+        syslog(LOG_INFO, "Brightness control not available");
+        auto_brightness = 0;
+    } else {
+        syslog(LOG_INFO, "Brightness control initialized (max: %d)", max_brightness);
+    }
+}
+
 void clear_state() {
     unlink(STATE_FILE);
 }
@@ -206,12 +260,27 @@ void load_config() {
                 interval = atoi(trimmed_value);
                 if (interval < 1 || interval > 600)
                     interval = DEFAULT_INTERVAL;
+            } else if (strcmp(trimmed_key, "AUTO_BRIGHTNESS") == 0) {
+                auto_brightness = atoi(trimmed_value);
+            } else if (strcmp(trimmed_key, "BRIGHTNESS_POWERSAVE") == 0) {
+                brightness_powersave = atoi(trimmed_value);
+                if (brightness_powersave < 10 || brightness_powersave > 100)
+                    brightness_powersave = DEFAULT_BRIGHTNESS_POWERSAVE;
+            } else if (strcmp(trimmed_key, "BRIGHTNESS_BALANCED") == 0) {
+                brightness_balanced = atoi(trimmed_value);
+                if (brightness_balanced < 10 || brightness_balanced > 100)
+                    brightness_balanced = DEFAULT_BRIGHTNESS_BALANCED;
+            } else if (strcmp(trimmed_key, "BRIGHTNESS_PERFORMANCE") == 0) {
+                brightness_performance = atoi(trimmed_value);
+                if (brightness_performance < 10 || brightness_performance > 100)
+                    brightness_performance = DEFAULT_BRIGHTNESS_PERFORMANCE;
             }
         }
     }
     
     fclose(fp);
-    syslog(LOG_INFO, "Configuration loaded: threshold=%d%%, interval=%ds", threshold, interval);
+    syslog(LOG_INFO, "Configuration loaded: threshold=%d%%, interval=%ds, auto_brightness=%d", 
+           threshold, interval, auto_brightness);
 }
 
 int main(int argc, char *argv[]) {
@@ -233,6 +302,7 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, signal_handler);
     
     load_config();
+    init_brightness();
     
     syslog(LOG_INFO, "Power Profile Manager daemon started");
     syslog(LOG_INFO, "Working in conjunction with TLP for power management");
@@ -254,11 +324,13 @@ int main(int argc, char *argv[]) {
                 system("tlp ac >/dev/null 2>&1");
                 syslog(LOG_INFO, "AC connected - triggered TLP AC mode (Battery=%d%%)", level);
                 clear_state();
+                set_brightness(brightness_performance, 0);  // Mode 0 = Performance
             }
         } else if (level <= threshold) {
             // On battery and at/below threshold - enforce powersave
             apply_powersave();
             set_state("powersave");
+            set_brightness(brightness_powersave, 1);  // Mode 1 = Powersave
             syslog(LOG_DEBUG, "Enforcing powersave mode (Battery=%d%% <= %d%%)", level, threshold);
         } else {
             // On battery but above threshold - let TLP handle battery mode
@@ -268,6 +340,7 @@ int main(int argc, char *argv[]) {
                 system("tlp bat >/dev/null 2>&1");
                 syslog(LOG_INFO, "Battery above threshold - triggered TLP battery mode (Battery=%d%%)", level);
                 clear_state();
+                set_brightness(brightness_balanced, 2);  // Mode 2 = Balanced
             }
         }
         

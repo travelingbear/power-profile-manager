@@ -5,6 +5,38 @@ All notable changes to Power Profile Manager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-12-07
+
+### Added
+- **Automatic Brightness Control**: New feature to automatically adjust screen brightness based on power mode
+- Configurable brightness levels for each power mode (Power Save, Balanced, Performance)
+- Smart brightness logic: only reduces brightness, never increases (respects manual dimming)
+- Brightness settings in configuration GUI with enable/disable toggle
+- One-time brightness adjustment per mode change (no continuous enforcement)
+
+### Changed
+- Configuration file now includes brightness settings (AUTO_BRIGHTNESS, BRIGHTNESS_POWERSAVE, BRIGHTNESS_BALANCED, BRIGHTNESS_PERFORMANCE)
+- GUI updated with brightness controls and enable/disable checkbox
+- Argos menu simplified: removed CPU settings (available in Monitor)
+- Improved GUI layout with better organization of settings
+
+### Technical Details
+- Brightness control checks current level before adjusting
+- Only reduces brightness when target is lower than current
+- Prevents unwanted brightness increases
+- Supports Intel backlight control via sysfs
+- Brightness values: 10-100% (configurable)
+- Default values: Power Save 60%, Balanced 80%, Performance 100%
+
+### Configuration
+New config options in `/etc/power-profiled.conf`:
+```
+AUTO_BRIGHTNESS=1              # 0=disabled, 1=enabled
+BRIGHTNESS_POWERSAVE=60        # 10-100%
+BRIGHTNESS_BALANCED=80         # 10-100%
+BRIGHTNESS_PERFORMANCE=100     # 10-100%
+```
+
 ## [1.1.0] - 2025-12-07
 
 ### Added
