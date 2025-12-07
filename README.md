@@ -5,6 +5,7 @@ Dynamic power management system for Linux laptops with battery percentage-based 
 **Version:** 1.2.0
 
 ## Features
+- **Battery Usage Logger**: Track battery usage over time and identify power-hungry apps
 
 - Native C daemon for optimal performance (~176KB memory)
 - Three power profiles: Performance, Balanced, Ultra Power Saving
