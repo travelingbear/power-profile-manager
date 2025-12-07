@@ -357,31 +357,51 @@ See [FUTURE_PLANS.md](docs/FUTURE_PLANS.md) for detailed roadmap.
 
 ## Uninstallation
 
+### Remove Daemon and CLI Tools
 ```bash
 # Stop and disable service
 sudo systemctl stop power-profiled
 sudo systemctl disable power-profiled
 
-# Remove files
+# Remove binaries
 sudo rm /usr/local/bin/power-profiled
 sudo rm /usr/local/bin/power-profile-ctl
+
+# Remove configuration and service
 sudo rm /etc/systemd/system/power-profiled.service
 sudo rm /etc/power-profiled.conf
+
+# Remove man pages
 sudo rm /usr/local/share/man/man1/power-profile-ctl.1
 sudo rm /usr/local/share/man/man8/power-profiled.8
 
-# Reload systemd
+# Remove state file
+sudo rm -f /var/run/power-profile-state
+
+# Reload systemd and man database
 sudo systemctl daemon-reload
 sudo mandb -q
 ```
 
+### Remove GUI Components (if installed)
+```bash
+# Remove GUI application
+sudo rm -rf /usr/local/share/power-profile-manager
+sudo rm /usr/share/applications/power-profile-config.desktop
+
+# Remove Argos script
+rm ~/.config/argos/power-profile.10s.sh
+
+# Update desktop database
+sudo update-desktop-database
+```
+
+### Keep TLP
+TLP will remain installed and continue managing AC/battery transitions normally.
+
 ## License
 
-TBD
-
-## Author
-
-Francisco (2025)
+GNU General Public License v3.0 - See [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
