@@ -29,6 +29,22 @@ echo "---"
 # Dropdown menu
 echo "Power Profile Manager"
 echo "---"
+
+# Check daemon status
+if systemctl is-active --quiet power-profiled; then
+    echo "Daemon: Running"
+else
+    echo "Daemon: Stopped | bash='pkexec systemctl start power-profiled' terminal=false"
+fi
+
+# Check TLP status
+if systemctl is-active --quiet tlp; then
+    echo "TLP: Running"
+else
+    echo "TLP: Stopped | bash='pkexec systemctl start tlp' terminal=false"
+fi
+
+echo "---"
 echo "Battery: $LEVEL% ($STATUS)"
 echo "Active Profile: $PROFILE"
 echo "---"

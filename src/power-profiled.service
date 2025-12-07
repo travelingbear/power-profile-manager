@@ -1,6 +1,7 @@
 [Unit]
 Description=Power Profile Manager Daemon
-After=tlp.service
+Requires=tlp.service
+After=multi-user.target tlp.service
 
 [Service]
 Type=simple

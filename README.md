@@ -2,7 +2,7 @@
 
 Dynamic power management system for Linux laptops with battery percentage-based profiles.
 
-**Version:** 1.0.0
+**Version:** 1.0.1
 
 ## Features
 
@@ -277,6 +277,13 @@ journalctl -u power-profiled -f
 
 **Daemon not running:**
 ```bash
+# First check if TLP is running (required)
+sudo systemctl status tlp
+
+# If TLP is not running, start it
+sudo systemctl start tlp
+
+# Then check daemon
 sudo systemctl status power-profiled
 sudo systemctl restart power-profiled
 ```

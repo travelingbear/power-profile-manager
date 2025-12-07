@@ -208,12 +208,22 @@ int main(int argc, char *argv[]) {
     
     openlog("power-profiled", LOG_PID, LOG_DAEMON);
     
+    // Check if TLP service is running
+    int ret = system("systemctl is-active --quiet tlp");
+    if (ret != 0) {
+        syslog(LOG_ERR, "TLP service is not running - Power Profile Manager requires TLP");
+        fprintf(stderr, "Error: TLP service is not running. Please start TLP first.\n");
+        closelog();
+        return 1;
+    }
+    
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
     
     load_config();
     
     syslog(LOG_INFO, "Power Profile Manager daemon started");
+    syslog(LOG_INFO, "Working in conjunction with TLP for power management");
     
     while (running) {
         int level = get_battery_level();

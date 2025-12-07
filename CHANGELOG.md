@@ -5,6 +5,26 @@ All notable changes to Power Profile Manager will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-12-07
+
+### Fixed
+- Fixed circular dependency in systemd service that prevented auto-start on boot
+- Changed service dependency from `After=tlp.service` to `After=multi-user.target tlp.service`
+- Added `Requires=tlp.service` to ensure TLP is running before daemon starts
+- Added runtime check in daemon to verify TLP service is active
+
+### Added
+- Daemon status indicator in Argos menu (shows if daemon is running)
+- TLP status indicator in Argos menu (shows if TLP is running)
+- Click-to-start functionality for stopped services in Argos menu
+- Daemon status display in GTK configuration GUI
+- Hide Battery Indicator GNOME extension (minimal extension to hide native battery icon)
+
+### Changed
+- Argos menu now shows plain text status (removed colors and icons from service status)
+- Improved error messages when TLP is not running
+- Enhanced logging with TLP integration note
+
 ## [1.0.0] - 2025-12-07
 
 ### Added

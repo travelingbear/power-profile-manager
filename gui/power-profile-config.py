@@ -111,6 +111,11 @@ class PowerProfileConfig(Gtk.Window):
     
     def update_status(self):
         try:
+            # Check daemon status
+            daemon_status = subprocess.run(['systemctl', 'is-active', 'power-profiled'],
+                                         capture_output=True, text=True)
+            daemon_running = daemon_status.stdout.strip() == 'active'
+            
             result = subprocess.run(['power-profile-ctl', 'status'], 
                                   capture_output=True, text=True)
             lines = result.stdout.split('\n')
@@ -118,8 +123,11 @@ class PowerProfileConfig(Gtk.Window):
             status = next((l for l in lines if 'Power Status:' in l), 'Status: N/A')
             profile = next((l for l in lines if 'Active Profile:' in l), 'Profile: N/A')
             
+            daemon_text = "✓ Daemon: Running" if daemon_running else "✗ Daemon: STOPPED"
+            daemon_color = "green" if daemon_running else "red"
+            
             self.status_label.set_markup(
-                f"<small>{battery.strip()}\n{status.strip()}\n{profile.strip()}</small>"
+                f"<small><span color='{daemon_color}'>{daemon_text}</span>\n{battery.strip()}\n{status.strip()}\n{profile.strip()}</small>"
             )
         except:
             self.status_label.set_text("Status unavailable")

@@ -1,5 +1,7 @@
 # Power Profile Manager - Quick Reference
 
+**Version:** 1.0.1
+
 ## Commands
 
 ```bash

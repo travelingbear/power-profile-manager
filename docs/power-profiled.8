@@ -1,4 +1,4 @@
-.TH POWER-PROFILED 8 "December 2025" "Power Profile Manager 1.0" "System Manager's Manual"
+.TH POWER-PROFILED 8 "December 2025" "Power Profile Manager 1.0.1" "System Manager's Manual"
 .SH NAME
 power-profiled \- Power profile management daemon
 .SH SYNOPSIS
@@ -18,6 +18,10 @@ Ultra power-saving mode when battery drops to or below threshold (managed by dae
 The daemon monitors battery status at regular intervals and only intervenes when
 battery level reaches the configured threshold, applying aggressive power-saving
 settings to extend battery life.
+.PP
+.B IMPORTANT:
+This daemon requires TLP to be installed and running. The daemon will not start
+if TLP service is not active.
 .SH CONFIGURATION
 Configuration is read from
 .I /etc/power-profiled.conf
