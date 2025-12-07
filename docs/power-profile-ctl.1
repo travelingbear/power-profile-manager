@@ -1,0 +1,46 @@
+.TH POWER-PROFILE-CTL 1 "December 2025" "Power Profile Manager 1.0" "User Commands"
+.SH NAME
+power-profile-ctl \- Control and monitor power profile manager
+.SH SYNOPSIS
+.B power-profile-ctl
+[\fICOMMAND\fR]
+.SH DESCRIPTION
+.B power-profile-ctl
+is a command-line utility to monitor and control the power profile manager daemon.
+.SH COMMANDS
+.TP
+.B status
+Show current power profile status including battery level, power status, active profile,
+and CPU settings. This is the default command if none is specified.
+.TP
+.B monitor
+Live monitoring of power profile with automatic refresh every 2 seconds.
+Press Ctrl+C to stop monitoring.
+.TP
+.B config
+Display the current configuration from /etc/power-profiled.conf
+.TP
+.B help
+Show help message with available commands
+.SH EXAMPLES
+.TP
+Show current status:
+.B power-profile-ctl status
+.TP
+Monitor in real-time:
+.B power-profile-ctl monitor
+.TP
+View configuration:
+.B power-profile-ctl config
+.SH FILES
+.TP
+.I /etc/power-profiled.conf
+Configuration file
+.TP
+.I /var/run/power-profile-state
+Current profile state
+.SH SEE ALSO
+.BR power-profiled (8),
+.BR tlp (8)
+.SH AUTHOR
+Francisco (2025)

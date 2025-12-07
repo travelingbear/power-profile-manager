@@ -1,0 +1,63 @@
+.TH POWER-PROFILED 8 "December 2025" "Power Profile Manager 1.0" "System Manager's Manual"
+.SH NAME
+power-profiled \- Power profile management daemon
+.SH SYNOPSIS
+.B power-profiled
+.SH DESCRIPTION
+.B power-profiled
+is a lightweight daemon that manages CPU power profiles based on battery level.
+It works in conjunction with TLP to provide three-tier power management:
+.PP
+.IP \(bu 2
+Performance mode when on AC power (managed by TLP)
+.IP \(bu 2
+Balanced mode when on battery with charge above threshold (managed by TLP)
+.IP \(bu 2
+Ultra power-saving mode when battery drops to or below threshold (managed by daemon)
+.PP
+The daemon monitors battery status at regular intervals and only intervenes when
+battery level reaches the configured threshold, applying aggressive power-saving
+settings to extend battery life.
+.SH CONFIGURATION
+Configuration is read from
+.I /etc/power-profiled.conf
+at startup.
+.PP
+.B THRESHOLD
+.RS
+Battery percentage threshold (5-99) to trigger ultra power-saving mode.
+Default: 30
+.RE
+.PP
+.B INTERVAL
+.RS
+Check interval in seconds (1-600). Default: 60
+.RE
+.SH FILES
+.TP
+.I /etc/power-profiled.conf
+Configuration file
+.TP
+.I /var/run/power-profile-state
+Current profile state file
+.TP
+.I /sys/class/power_supply/BAT0/
+Battery information directory
+.SH SIGNALS
+.TP
+.B SIGTERM, SIGINT
+Gracefully shutdown the daemon
+.SH LOGGING
+The daemon logs to syslog with facility LOG_DAEMON. View logs with:
+.PP
+.RS
+journalctl -u power-profiled
+.RE
+.SH SEE ALSO
+.BR power-profile-ctl (1),
+.BR tlp (8),
+.BR systemctl (1)
+.SH AUTHOR
+Francisco (2025)
+.SH BUGS
+Report bugs at: https://github.com/yourusername/power-profile-manager/issues

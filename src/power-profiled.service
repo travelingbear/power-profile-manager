@@ -1,0 +1,12 @@
+[Unit]
+Description=Power Profile Manager Daemon
+After=tlp.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/power-profiled
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

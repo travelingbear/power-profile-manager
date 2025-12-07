@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Power Profile Manager
+Comment=Configure power profile settings
+Exec=python3 /usr/local/share/power-profile-manager/power-profile-config.py
+Icon=battery
+Terminal=false
+Categories=System;Settings;
+Keywords=power;battery;profile;performance;

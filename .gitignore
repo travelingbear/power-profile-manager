@@ -1,0 +1,31 @@
+# Build artifacts
+src/power-profiled
+src/power-profile-ctl
+*.o
+
+# Legacy bash implementation (kept for reference)
+scripts/
+
+# Temporary files
+*.tmp
+*~
+.*.swp
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.code-workspace
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Distribution/packaging
+dist/
+build/
+*.egg-info/
