@@ -4,6 +4,8 @@
 
 A lightweight tool to track battery usage over time (hours, days, weeks) and identify which applications consume the most power.
 
+**Note:** The Battery Usage Logger has been moved to a separate project: `~/Documents/PROJECTS/battery-analyzer/`
+
 ## Features
 
 - Logs battery data every 5 minutes
@@ -19,10 +21,10 @@ A lightweight tool to track battery usage over time (hours, days, weeks) and ide
 
 ```bash
 # Start logger in terminal
-~/Documents/PROJECTS/power-profile-manager/tools/battery-logger.py
+~/Documents/PROJECTS/battery-analyzer/battery-logger.py
 
 # Or run in background
-nohup ~/Documents/PROJECTS/power-profile-manager/tools/battery-logger.py &
+nohup ~/Documents/PROJECTS/battery-analyzer/battery-logger.py &
 ```
 
 ### Auto-Start on Login (Recommended)
@@ -32,15 +34,15 @@ Add to startup applications:
 1. Open "Startup Applications"
 2. Click "Add"
 3. Name: Battery Logger
-4. Command: `/usr/bin/python3 /home/francisco/Documents/PROJECTS/power-profile-manager/tools/battery-logger.py`
+4. Command: `/usr/bin/python3 /home/francisco/Documents/PROJECTS/battery-analyzer/battery-logger.py`
 5. Click "Add"
 
 ### Systemd Service (Advanced)
 
 ```bash
 # Install
-sudo cp ~/Documents/PROJECTS/power-profile-manager/tools/battery-logger.py /usr/local/bin/
-sudo cp ~/Documents/PROJECTS/power-profile-manager/tools/battery-logger.service /etc/systemd/user/
+sudo cp ~/Documents/PROJECTS/battery-analyzer/battery-logger.py /usr/local/bin/
+sudo cp ~/Documents/PROJECTS/battery-analyzer/battery-logger.service /etc/systemd/user/
 
 # Enable and start
 systemctl --user enable battery-logger.service
@@ -62,7 +64,7 @@ Each day creates a new file: `battery-YYYY-MM-DD.csv`
 
 ```bash
 # Quick analysis
-~/Documents/PROJECTS/power-profile-manager/tools/battery-analyze.sh
+~/Documents/PROJECTS/battery-analyzer/battery-analyze.sh
 
 # View raw data
 cat ~/.local/share/power-profile-manager/logs/battery-$(date +%Y-%m-%d).csv
@@ -232,7 +234,7 @@ pkill -f battery-logger.py
 
 # Remove files
 rm -rf ~/.local/share/power-profile-manager/logs/
-rm ~/Documents/PROJECTS/power-profile-manager/tools/battery-logger.py
+rm ~/Documents/PROJECTS/battery-analyzer/battery-logger.py
 
 # If using systemd
 systemctl --user stop battery-logger.service
